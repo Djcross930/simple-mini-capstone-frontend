@@ -5,7 +5,8 @@ export default {
     return {
       message: "Welcome to Vue.js!",
       products: [],
-      newProduct: {}
+      newProduct: {},
+      currentProduct: {}
     };
   },
   created: function () {
@@ -29,6 +30,22 @@ export default {
         console.log(response.data)
         this.products.push(response.data);
       })
+    },
+    showProduct: function (theProduct) {
+      console.log(theProduct)
+      this.currentProduct = theProduct
+      document.querySelector('#product-details').showModal();
+    },
+    updateProduct: function () {
+      axios.patch(`http://localhost:3000/products/${this.currentProduct.id}.json`, this.currentProduct).then(response => {
+        console.log(response.data)
+      })
+    },
+    destroyProduct: function () {
+      axios.delete(`http://localhost:3000/products/${this.currentProduct.id}.json`, this.currentProduct).then(response => {
+        var index = this.products.indexOf(this.currentProduct)
+        this.products.splice(index, 1);
+      })
     }
   }
 };
@@ -46,9 +63,33 @@ export default {
       <p> ${{ product.price }} </p>
       <p> {{ product.description }} </p>
       <!-- <img v-bind:src="product.image_url" /> -->
+      <button v-on:click="showProduct(product)">More Info</button>
       <br />
       <br />
     </div>
+
+
+
+    <dialog id="product-details">
+      <form method="dialog">
+        <p><b>Name:</b> {{ currentProduct.name }}</p>
+        <p><b>Price:</b> {{ currentProduct.price }}</p>
+        <p><b>Description:</b> {{ currentProduct.description }}</p>
+        <hr />
+        <hr />
+        <p><b>name:</b> <input type="text" v-model="currentProduct.name" /></p>
+        <p><b>Price:</b> <input type="text" v-model="currentProduct.price" /></p>
+        <p><b>Description:</b> <input type="text" v-model="currentProduct.description" /></p>
+        <button v-on:click="updateProduct()">Update Product</button>
+        <button v-on:click="destroyProduct()">Delete Product</button>
+        <button>Close</button>
+      </form>
+    </dialog>
+
+
+
+
+
   </div>
 </template>
 
